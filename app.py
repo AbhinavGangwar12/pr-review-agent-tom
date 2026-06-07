@@ -167,6 +167,26 @@ async def github_webhook(request: Request, background_tasks: BackgroundTasks):
 
         background_tasks.add_task(_resume)
         return {"status": "resumed", "decision": approval}
+    
+    if event_type == "issue_comment":
+        if payload.get("action") != "created":
+            return {"status": "ignored"}
+
+        body      = payload.get("comment", {}).get("body", "").strip().lower()
+        repo_name = payload["repository"]["full_name"]
+        pr_number = payload.get("issue", {}).get("number")
+
+        if not pr_number or body not in ("/approve", "/reject"):
+            return {"status": "ignored"}
+
+        tid      = _thread_id(repo_name, pr_number)
+        approval = "Approve" if body == "/approve" else "Reject"
+
+        def _resume():
+            review_graph.invoke(Command(resume={"approval": approval}), _config(tid))
+
+        background_tasks.add_task(_resume)
+        return {"status": "resumed", "decision": approval}
 
     return {"status": "ignored"}
 
