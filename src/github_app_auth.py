@@ -13,6 +13,6 @@ def get_github_client(repo_full_name: str) -> Github:
     integration  = GithubIntegration(auth=Auth.AppAuth(app_id, private_key))
     owner, repo  = repo_full_name.split("/")
     installation = integration.get_repo_installation(owner, repo)
-    token        = installation.get_access_token().token
+    access_token = integration.get_access_token(installation.id)
 
-    return Github(auth=Auth.Token(token))
+    return Github(auth=Auth.Token(access_token.token))
