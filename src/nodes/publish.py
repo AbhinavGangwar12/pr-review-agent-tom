@@ -32,10 +32,26 @@ def post_github_comment_node(state: PRReviewState) -> dict:
     )
 
     # pr.create_issue_comment(body)
-    pr.create_review(
+    # pr.create_review(
+    #     body=body,
+    #     event="REQUEST_CHANGES" if state.get("highest_severity") == "CRITICAL" else "COMMENT"
+    # )
+    pr.create_issue_comment(
         body=body,
         event="REQUEST_CHANGES" if state.get("highest_severity") == "CRITICAL" else "COMMENT"
     )
+
     logger.info(f"Successfully posted comment to PR #{state['pr_number']}.")
 
+    return {}
+
+def reject_node(state: PRReviewState) -> dict:
+    g    = get_github_client(state["repo_name"])
+    repo = g.get_repo(state["repo_name"])
+    pr   = repo.get_pull(state["pr_number"])
+    pr.create_issue_comment(
+        "## ❌ PR Blocked by Reviewer\n\n"
+        "Critical issues were flagged and rejected during human review. "
+        "Fix the reported issues and push a new commit to re-trigger the review."
+    )
     return {}

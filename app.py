@@ -176,7 +176,7 @@ async def github_webhook(request: Request, background_tasks: BackgroundTasks):
         repo_name = payload["repository"]["full_name"]
         pr_number = payload.get("issue", {}).get("number")
 
-        if not pr_number or body not in ("/approve", "/reject"):
+        if not pr_number or body not in ("/approve", "/reject", "approve", "reject"):
             return {"status": "ignored"}
 
         tid      = _thread_id(repo_name, pr_number)

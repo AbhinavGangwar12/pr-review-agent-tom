@@ -10,7 +10,7 @@ def save_graph_image():
         # get_graph() extracts the state graph, draw_mermaid_png() renders it
         image_bytes = app.get_graph().draw_mermaid_png()
         
-        output_path = "graph_architecture.png"
+        output_path = "graph_architecture1.png"
         
         # Write the binary data directly to a standard image file
         with open(output_path, "wb") as f:
