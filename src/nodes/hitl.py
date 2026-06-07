@@ -47,13 +47,16 @@ def human_review_node(state: PRReviewState) -> dict:
         g    = get_github_client(state["repo_name"])
         repo = g.get_repo(state["repo_name"])
         pr   = repo.get_pull(state["pr_number"])
+        comments  = state.get("review_comments", [])
+        severity  = state.get("highest_severity", "CRITICAL")
+        badge     = {"LOW": "🟢 LOW", "MEDIUM": "🟡 MEDIUM", "CRITICAL": "🔴 CRITICAL"}.get(severity, severity)
+        issues    = sum(1 for c in comments if c.get("severity") in ("MEDIUM", "CRITICAL"))
         pr.create_issue_comment(
-            "## ⚠️ CRITICAL Issues Detected — Human Review Required\n\n"
-            f"{state.get('final_report', '')}\n\n"
-            "---\n"
-            "**Action required:** Review the findings above, then submit a PR review:\n"
-            "- **Approve** → agent posts the full report and marks complete\n"
-            "- **Request changes** → agent blocks the PR"
+            f"## ⚠️ PR Review Paused — Human Approval Required\n\n"
+            f"**{issues} issue(s) flagged** across Security, Performance, Style & Test Coverage. "
+            f"Overall severity: **{badge}**\n\n"
+            f"**Approve** this review to publish the full report → "
+            f"**Request changes** to block the PR."
         )
     except Exception as e:
         logger.error(f"Failed to post HITL alert comment: {e}")
