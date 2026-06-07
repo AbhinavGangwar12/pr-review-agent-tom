@@ -50,10 +50,10 @@ Return ONLY the Markdown content, nothing else.
     markdown_content = response.content
     
     # Save to file
-    os.makedirs("reviews", exist_ok=True)
+    os.makedirs("/tmp/reviews", exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     safe_repo = repo_name.replace("/", "_")
-    filename  = f"reviews/{safe_repo}_pr{pr_number}_{timestamp}.md"
+    filename  = f"/tmp/reviews/{safe_repo}_pr{pr_number}_{timestamp}.md"
     
     with open(filename, "w", encoding="utf-8") as f:
         f.write(markdown_content)
