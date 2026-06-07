@@ -59,7 +59,8 @@ def build_review_graph():
     builder.add_edge("post_github_comment_node", "markdown_report_node")
     builder.add_edge("markdown_report_node", END)
 
-    conn        = psycopg.connect(os.getenv("DATABASE_URL"))
+    conn        = psycopg.connect(os.getenv("DATABASE_URL"), autocommit=True)
     checkpointer = PostgresSaver(conn)
+    checkpointer.setup()  # Ensure the necessary table exists
 
     return builder.compile(checkpointer=checkpointer)
