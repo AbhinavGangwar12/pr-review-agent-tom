@@ -175,3 +175,18 @@ async def github_webhook(request: Request, background_tasks: BackgroundTasks):
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+# debug
+@app.get("/debug/auth")
+async def debug_auth():
+    import os
+    from github import Auth, GithubIntegration
+    try:
+        app_id      = os.getenv("GITHUB_APP_ID")
+        private_key = os.getenv("GITHUB_APP_PRIVATE_KEY").replace("\\n", "\n")
+        integration = GithubIntegration(auth=Auth.AppAuth(int(app_id), private_key))
+        installations = list(integration.get_installations())
+        return {"status": "ok", "app_id": app_id, "installations": len(installations)}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
